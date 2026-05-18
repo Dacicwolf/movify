@@ -96,7 +96,11 @@ if (!empty($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
         json_response(['ok' => false, 'error' => 'Eroare la salvarea imaginii.'], 500);
     }
 
-    $imageUrl = APP_URL . '/uploads/' . $filename;
+    // Upload to Fal.ai CDN so the model can access it
+    $imageUrl = upload_to_fal_cdn($imagePath, $mime);
+    if (!$imageUrl) {
+        json_response(['ok' => false, 'error' => 'Eroare la uploadul imaginii pe CDN.'], 500);
+    }
 }
 
 // ── Deduct credits ──────────────────────────────────────────────────
@@ -165,8 +169,8 @@ if (!$queueId) {
 
 // ── Save video record (status = processing) ─────────────────────────
 $stmt = $pdo->prepare(
-    'INSERT INTO videos (user_id, prompt, image_path, model_used, resolution, duration, format, video_url, credits_deducted, status, queue_id, status_url, response_url)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+    'INSERT INTO videos (user_id, prompt, image_path, model_used, resolution, duration, format, video_url, credits_deducted, status, queue_id, status_url, response_url, api_endpoint)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
 );
 $stmt->execute([
     $userId,
@@ -182,6 +186,7 @@ $stmt->execute([
     $queueId,
     $statusUrl,
     $responseUrl,
+    $endpoint,
 ]);
 
 $videoId = (int)$pdo->lastInsertId();
