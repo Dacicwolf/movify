@@ -55,7 +55,7 @@ function register_user(PDO $pdo, string $email, string $password): array
 
     send_verification_email($email, $code);
 
-    return ['ok' => true, 'user_id' => $userId, 'email' => $email];
+    return ['ok' => true, 'user_id' => $userId, 'email' => $email, 'code' => $code];
 }
 
 // ── Verify email code ───────────────────────────────────────────────
@@ -180,6 +180,7 @@ function send_mail(string $to, string $subject, string $htmlBody): void
 {
     if (SMTP_USER === '' || SMTP_PASS === '') {
         error_log("SMTP not configured – would send to {$to}: {$subject}");
+        error_log("Mail body: {$htmlBody}");
         return;
     }
 

@@ -39,6 +39,13 @@ require_once __DIR__ . '/includes/header.php';
             Am trimis un cod de 6 cifre la <span class="text-primary-400"><?= h($email) ?></span>
         </p>
 
+        <?php if (!empty($_SESSION['verify_code_hint']) && (SMTP_USER === '' || SMTP_PASS === '')): ?>
+            <div class="mb-4 p-3 rounded-lg bg-yellow-900/40 border border-yellow-600 text-yellow-300 text-sm text-center">
+                <strong>Dev mode</strong> – SMTP nu este configurat.<br>
+                Codul tău de verificare: <span class="text-2xl font-mono font-bold tracking-widest text-white"><?= h($_SESSION['verify_code_hint']) ?></span>
+            </div>
+        <?php endif; ?>
+
         <?php if ($error): ?>
             <div class="mb-4 p-3 rounded-lg bg-red-900/40 border border-red-700 text-red-300 text-sm">
                 <?= h($error) ?>
