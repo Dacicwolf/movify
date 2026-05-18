@@ -154,7 +154,9 @@ if ($curlError || $httpCode >= 400) {
 }
 
 $apiData = json_decode($apiResponse, true);
-$queueId = $apiData['request_id'] ?? $apiData['id'] ?? null;
+$queueId   = $apiData['request_id'] ?? $apiData['id'] ?? null;
+$statusUrl = $apiData['status_url'] ?? null;
+$responseUrl = $apiData['response_url'] ?? null;
 
 if (!$queueId) {
     refund_credits($pdo, $userId, $cost);
@@ -163,8 +165,8 @@ if (!$queueId) {
 
 // ── Save video record (status = processing) ─────────────────────────
 $stmt = $pdo->prepare(
-    'INSERT INTO videos (user_id, prompt, image_path, model_used, resolution, duration, format, video_url, credits_deducted, status, queue_id)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+    'INSERT INTO videos (user_id, prompt, image_path, model_used, resolution, duration, format, video_url, credits_deducted, status, queue_id, status_url, response_url)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
 );
 $stmt->execute([
     $userId,
@@ -178,6 +180,8 @@ $stmt->execute([
     $cost,
     'processing',
     $queueId,
+    $statusUrl,
+    $responseUrl,
 ]);
 
 $videoId = (int)$pdo->lastInsertId();
