@@ -89,6 +89,9 @@ require_once __DIR__ . '/includes/header.php';
                                 class="w-full px-4 py-3 rounded-lg bg-dark-900 border border-gray-600 focus:border-primary-500 outline-none text-white">
                             <option value="movie">Movie (16:9)</option>
                             <option value="portrait">Portrait (9:16)</option>
+                            <option value="landscape">Landscape (3:2)</option>
+                            <option value="portrait_32">Portrait (2:3)</option>
+                            <option value="square">Square (1:1)</option>
                         </select>
                     </div>
 

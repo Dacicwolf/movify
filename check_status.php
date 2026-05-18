@@ -25,7 +25,7 @@ if (!$videoId) {
 
 // ── Fetch video record ──────────────────────────────────────────────
 $stmt = $pdo->prepare(
-    'SELECT id, queue_id, status, video_url, model_used, credits_deducted FROM videos WHERE id = ? AND user_id = ?'
+    'SELECT id, queue_id, status, video_url, model_used, credits_deducted, status_url, response_url FROM videos WHERE id = ? AND user_id = ?'
 );
 $stmt->execute([$videoId, $userId]);
 $video = $stmt->fetch();
@@ -43,10 +43,14 @@ if ($video['status'] !== 'processing') {
     ]);
 }
 
-// ── Resolve Fal.ai status endpoint from model config ────────────────
-$modelConfig = get_model_config($video['model_used']);
-$apiEndpoint = $modelConfig['api_endpoint'] ?? 'https://queue.fal.run/fal-ai/wan/v2.1/text-to-video';
-$statusUrl   = $apiEndpoint . '/requests/' . $video['queue_id'] . '/status';
+// ── Resolve Fal.ai status endpoint ──────────────────────────────────
+// Prefer the status_url saved from the initial queue response
+$statusUrl = $video['status_url'] ?? '';
+if (!$statusUrl) {
+    $modelConfig = get_model_config($video['model_used']);
+    $apiEndpoint = $modelConfig['api_endpoint'] ?? 'https://queue.fal.run/fal-ai/wan/v2.1/text-to-video';
+    $statusUrl   = $apiEndpoint . '/requests/' . $video['queue_id'] . '/status';
+}
 
 // ── Poll Fal.ai ─────────────────────────────────────────────────────
 $ch = curl_init();
@@ -77,9 +81,33 @@ $status = strtolower($data['status'] ?? 'IN_QUEUE');
 
 // ── Handle completed ────────────────────────────────────────────────
 if ($status === 'completed' || $status === 'succeeded') {
-    $videoUrl = $data['video']['url']
-             ?? $data['result']['video']['url']
-             ?? $data['output']['video']['url']
+    // Status endpoint may not contain the result — fetch from response_url
+    $resultData = $data;
+    $fetchUrl   = $video['response_url'] ?? '';
+
+    if ($fetchUrl) {
+        $ch2 = curl_init();
+        curl_setopt_array($ch2, [
+            CURLOPT_URL            => $fetchUrl,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_HTTPHEADER     => [
+                'Authorization: Key ' . FAL_AI_API_KEY,
+                'Content-Type: application/json',
+            ],
+            CURLOPT_TIMEOUT        => 30,
+        ]);
+        $resultResponse = curl_exec($ch2);
+        $resultCode     = curl_getinfo($ch2, CURLINFO_HTTP_CODE);
+        curl_close($ch2);
+
+        if ($resultCode === 200 && $resultResponse) {
+            $resultData = json_decode($resultResponse, true) ?: $data;
+        }
+    }
+
+    $videoUrl = $resultData['video']['url']
+             ?? $resultData['result']['video']['url']
+             ?? $resultData['output']['video']['url']
              ?? '';
 
     if ($videoUrl) {

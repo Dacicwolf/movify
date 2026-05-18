@@ -16,12 +16,20 @@ if (is_post()) {
     if (!verify_csrf(post('csrf_token'))) {
         $error = 'Cerere invalidă. Reîncearcă.';
     } else {
-        $result = register_user($pdo, post('email'), post('password'));
-        if ($result['ok']) {
-            $_SESSION['verify_email'] = $result['email'];
-            redirect('verify.php');
+        $password        = post('password');
+        $passwordConfirm = post('password_confirm');
+
+        if ($password !== $passwordConfirm) {
+            $error = 'Parolele nu coincid.';
+        } else {
+            $result = register_user($pdo, post('email'), $password);
+            if ($result['ok']) {
+                $_SESSION['verify_email'] = $result['email'];
+                $_SESSION['verify_code_hint'] = $result['code'];
+                redirect('verify.php');
+            }
+            $error = $result['error'];
         }
-        $error = $result['error'];
     }
 }
 
@@ -55,6 +63,13 @@ require_once __DIR__ . '/includes/header.php';
                 <input type="password" id="password" name="password" required minlength="8"
                        class="w-full px-4 py-3 rounded-lg bg-dark-900 border border-gray-600 focus:border-primary-500 focus:ring-1 focus:ring-primary-500 outline-none text-white placeholder-gray-500"
                        placeholder="Minim 8 caractere">
+            </div>
+
+            <div>
+                <label for="password_confirm" class="block text-sm font-medium text-gray-300 mb-1">Confirmă parola</label>
+                <input type="password" id="password_confirm" name="password_confirm" required minlength="8"
+                       class="w-full px-4 py-3 rounded-lg bg-dark-900 border border-gray-600 focus:border-primary-500 focus:ring-1 focus:ring-primary-500 outline-none text-white placeholder-gray-500"
+                       placeholder="Reintrodu parola">
             </div>
 
             <button type="submit"

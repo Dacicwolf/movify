@@ -33,7 +33,7 @@ $format     = post('format');
 $allowedModels      = array_keys($MODELS_CONFIG);
 $allowedResolutions = ['720p', '1080p', '4k'];
 $allowedDurations   = [4, 6, 8, 10];
-$allowedFormats     = ['movie', 'portrait'];
+$allowedFormats     = ['movie', 'portrait', 'landscape', 'portrait_32', 'square'];
 
 if (!$prompt && empty($_FILES['image'])) {
     json_response(['ok' => false, 'error' => 'Furnizează un prompt sau o imagine.'], 400);
@@ -114,7 +114,14 @@ $endpoint = $hasImage
 $payload = [
     'prompt'       => $prompt,
     'duration'     => $duration,
-    'aspect_ratio' => ($format === 'movie') ? '16:9' : '9:16',
+    'aspect_ratio' => match($format) {
+        'movie'       => '16:9',
+        'portrait'    => '9:16',
+        'landscape'   => '3:2',
+        'portrait_32' => '2:3',
+        'square'      => '1:1',
+        default       => '16:9',
+    },
 ];
 
 if ($hasImage) {
@@ -147,7 +154,9 @@ if ($curlError || $httpCode >= 400) {
 }
 
 $apiData = json_decode($apiResponse, true);
-$queueId = $apiData['request_id'] ?? $apiData['id'] ?? null;
+$queueId   = $apiData['request_id'] ?? $apiData['id'] ?? null;
+$statusUrl = $apiData['status_url'] ?? null;
+$responseUrl = $apiData['response_url'] ?? null;
 
 if (!$queueId) {
     refund_credits($pdo, $userId, $cost);
@@ -156,8 +165,8 @@ if (!$queueId) {
 
 // ── Save video record (status = processing) ─────────────────────────
 $stmt = $pdo->prepare(
-    'INSERT INTO videos (user_id, prompt, image_path, model_used, resolution, duration, format, video_url, credits_deducted, status, queue_id)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+    'INSERT INTO videos (user_id, prompt, image_path, model_used, resolution, duration, format, video_url, credits_deducted, status, queue_id, status_url, response_url)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
 );
 $stmt->execute([
     $userId,
@@ -171,6 +180,8 @@ $stmt->execute([
     $cost,
     'processing',
     $queueId,
+    $statusUrl,
+    $responseUrl,
 ]);
 
 $videoId = (int)$pdo->lastInsertId();

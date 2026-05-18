@@ -7,14 +7,14 @@
  */
 
 // ── Error Reporting (disable display in production) ─────────────────
-ini_set('display_errors', 0);
+ini_set('display_errors', (getenv('APP_ENV') === 'production') ? 0 : 1);
 ini_set('log_errors', 1);
 error_reporting(E_ALL);
 
 // ── Session ─────────────────────────────────────────────────────────
 if (session_status() === PHP_SESSION_NONE) {
     ini_set('session.cookie_httponly', 1);
-    ini_set('session.cookie_secure', 1);
+    ini_set('session.cookie_secure', (getenv('APP_ENV') === 'production') ? 1 : 0);
     ini_set('session.use_strict_mode', 1);
     session_start();
 }
