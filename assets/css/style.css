@@ -1,0 +1,57 @@
+/**
+ * Movify – Custom Styles (supplements Tailwind)
+ */
+
+/* Smooth scrollbar */
+::-webkit-scrollbar {
+    width: 6px;
+}
+::-webkit-scrollbar-track {
+    background: #111827;
+}
+::-webkit-scrollbar-thumb {
+    background: #374151;
+    border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #4b5563;
+}
+
+/* Gradient glow behind brand */
+.brand-glow {
+    position: relative;
+}
+.brand-glow::after {
+    content: '';
+    position: absolute;
+    inset: -20px;
+    background: radial-gradient(circle, rgba(59,130,246,0.15) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: -1;
+}
+
+/* Spinner animation (fallback) */
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+.animate-spin {
+    animation: spin 1s linear infinite;
+}
+
+/* Video card hover lift */
+.group:hover {
+    transform: translateY(-2px);
+    transition: transform 0.2s ease;
+}
+
+/* File input styling */
+input[type="file"]::file-selector-button {
+    cursor: pointer;
+}
+
+/* Focus ring consistency */
+select:focus,
+textarea:focus,
+input:focus {
+    outline: none;
+}

@@ -1,0 +1,147 @@
+/**
+ * Movify – Frontend Logic
+ * Dynamic credit calculation, form submission, polling.
+ */
+
+document.addEventListener('DOMContentLoaded', () => {
+    const form         = document.getElementById('generate-form');
+    const costPreview  = document.getElementById('cost-preview');
+    const btnGenerate  = document.getElementById('btn-generate');
+    const processing   = document.getElementById('processing');
+    const processingTx = document.getElementById('processing-text');
+    const progressBar  = document.getElementById('progress-bar');
+    const creditBadge  = document.getElementById('credit-balance');
+
+    if (!form) return; // not on dashboard
+
+    // ── Credit Calculation (mirrors PHP logic) ──────────────────────
+    const MODEL_BASE    = { runway: 5, luma: 4, stable_video: 3 };
+    const RES_MULT      = { '720p': 1.0, '1080p': 1.5, '4k': 2.0 };
+    const DUR_MULT      = { 4: 1.0, 6: 1.3, 8: 1.6, 10: 2.0 };
+
+    function calcCost() {
+        const model      = form.querySelector('#model').value;
+        const resolution = form.querySelector('#resolution').value;
+        const duration   = parseInt(form.querySelector('input[name="duration"]:checked')?.value || 4);
+
+        const cost = Math.ceil(
+            (MODEL_BASE[model] || 4)
+            * (RES_MULT[resolution] || 1)
+            * (DUR_MULT[duration] || 1)
+        );
+
+        if (costPreview) costPreview.textContent = cost;
+        return cost;
+    }
+
+    // Recalculate on every control change
+    ['#model', '#resolution', '#format'].forEach(sel => {
+        const el = form.querySelector(sel);
+        if (el) el.addEventListener('change', calcCost);
+    });
+
+    form.querySelectorAll('input[name="duration"]').forEach(r => {
+        r.addEventListener('change', calcCost);
+    });
+
+    calcCost(); // initial
+
+    // ── Form Submission ─────────────────────────────────────────────
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const fd = new FormData(form);
+        fd.append('duration', form.querySelector('input[name="duration"]:checked')?.value || '4');
+
+        btnGenerate.disabled = true;
+        processing.classList.remove('hidden');
+        progressBar.style.width = '5%';
+        processingTx.textContent = 'Se trimite cererea...';
+
+        try {
+            const res  = await fetch('generate_video.php', { method: 'POST', body: fd });
+            const data = await res.json();
+
+            if (!data.ok) {
+                alert(data.error || 'Eroare la generare.');
+                btnGenerate.disabled = false;
+                processing.classList.add('hidden');
+                return;
+            }
+
+            // Update credits badge
+            if (creditBadge && data.credits !== undefined) {
+                creditBadge.textContent = data.credits;
+            }
+
+            processingTx.textContent = 'Video-ul este în curs de generare...';
+            progressBar.style.width = '15%';
+
+            // Start polling
+            pollStatus(data.video_id);
+
+        } catch (err) {
+            console.error(err);
+            alert('Eroare de rețea. Reîncearcă.');
+            btnGenerate.disabled = false;
+            processing.classList.add('hidden');
+        }
+    });
+
+    // ── Polling ─────────────────────────────────────────────────────
+    let pollCount = 0;
+
+    function pollStatus(videoId) {
+        const interval = setInterval(async () => {
+            pollCount++;
+
+            // Simulate progress bar
+            const fakeProgress = Math.min(15 + pollCount * 3, 90);
+            progressBar.style.width = fakeProgress + '%';
+
+            try {
+                const res  = await fetch(`check_status.php?video_id=${videoId}`);
+                const data = await res.json();
+
+                if (data.status === 'completed') {
+                    clearInterval(interval);
+                    progressBar.style.width = '100%';
+                    processingTx.textContent = 'Video generat cu succes!';
+
+                    if (data.credits !== undefined && creditBadge) {
+                        creditBadge.textContent = data.credits;
+                    }
+
+                    // Reload gallery after a brief pause
+                    setTimeout(() => location.reload(), 1500);
+                }
+
+                if (data.status === 'failed') {
+                    clearInterval(interval);
+                    processingTx.textContent = data.error || 'Generarea a eșuat.';
+                    progressBar.style.width = '0%';
+                    progressBar.classList.replace('bg-primary-500', 'bg-red-500');
+
+                    if (data.credits !== undefined && creditBadge) {
+                        creditBadge.textContent = data.credits;
+                    }
+
+                    setTimeout(() => {
+                        processing.classList.add('hidden');
+                        btnGenerate.disabled = false;
+                        progressBar.classList.replace('bg-red-500', 'bg-primary-500');
+                        pollCount = 0;
+                    }, 3000);
+                }
+
+                // Update progress text if API provides it
+                if (data.progress !== null && data.progress !== undefined) {
+                    processingTx.textContent = `Progres: ${Math.round(data.progress * 100)}%`;
+                }
+
+            } catch (err) {
+                console.error('Poll error:', err);
+            }
+        }, 5000); // poll every 5 seconds
+    }
+});

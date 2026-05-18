@@ -1,0 +1,77 @@
+<?php
+/**
+ * Movify – Global Configuration
+ *
+ * Database credentials, session settings, and app constants.
+ * For production, load sensitive values from environment variables.
+ */
+
+// ── Error Reporting (disable display in production) ─────────────────
+ini_set('display_errors', 0);
+ini_set('log_errors', 1);
+error_reporting(E_ALL);
+
+// ── Session ─────────────────────────────────────────────────────────
+if (session_status() === PHP_SESSION_NONE) {
+    ini_set('session.cookie_httponly', 1);
+    ini_set('session.cookie_secure', 1);
+    ini_set('session.use_strict_mode', 1);
+    session_start();
+}
+
+// ── Database ────────────────────────────────────────────────────────
+define('DB_HOST', getenv('DB_HOST') ?: 'localhost');
+define('DB_NAME', getenv('DB_NAME') ?: 'ai_video_generator');
+define('DB_USER', getenv('DB_USER') ?: 'root');
+define('DB_PASS', getenv('DB_PASS') ?: '');
+
+try {
+    $pdo = new PDO(
+        'mysql:host=' . DB_HOST . ';dbname=' . DB_NAME . ';charset=utf8mb4',
+        DB_USER,
+        DB_PASS,
+        [
+            PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
+            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+            PDO::ATTR_EMULATE_PREPARES   => false,
+        ]
+    );
+} catch (PDOException $e) {
+    error_log('DB connection failed: ' . $e->getMessage());
+    http_response_code(500);
+    exit('Database connection error. Please try again later.');
+}
+
+// ── App Constants ───────────────────────────────────────────────────
+define('APP_NAME', 'Movify');
+define('APP_URL', getenv('APP_URL') ?: 'http://localhost');
+define('UPLOAD_DIR', __DIR__ . '/uploads/');
+define('MAX_UPLOAD_SIZE', 50 * 1024 * 1024); // 50 MB
+
+// ── AI API ──────────────────────────────────────────────────────────
+define('FAL_AI_API_KEY', getenv('FAL_AI_API_KEY') ?: '');
+define('FAL_AI_BASE_URL', 'https://queue.fal.run');
+
+// ── SMTP (for PHPMailer) ────────────────────────────────────────────
+define('SMTP_HOST', getenv('SMTP_HOST') ?: 'smtp.gmail.com');
+define('SMTP_PORT', getenv('SMTP_PORT') ?: 587);
+define('SMTP_USER', getenv('SMTP_USER') ?: '');
+define('SMTP_PASS', getenv('SMTP_PASS') ?: '');
+define('SMTP_FROM', getenv('SMTP_FROM') ?: 'noreply@movify.app');
+define('SMTP_FROM_NAME', 'Movify');
+
+// ── CSRF helper ─────────────────────────────────────────────────────
+function csrf_token(): string {
+    if (empty($_SESSION['csrf_token'])) {
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+    }
+    return $_SESSION['csrf_token'];
+}
+
+function csrf_field(): string {
+    return '<input type="hidden" name="csrf_token" value="' . htmlspecialchars(csrf_token()) . '">';
+}
+
+function verify_csrf(string $token): bool {
+    return isset($_SESSION['csrf_token']) && hash_equals($_SESSION['csrf_token'], $token);
+}
