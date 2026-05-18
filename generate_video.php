@@ -33,7 +33,7 @@ $format     = post('format');
 $allowedModels      = array_keys($MODELS_CONFIG);
 $allowedResolutions = ['720p', '1080p', '4k'];
 $allowedDurations   = [4, 6, 8, 10];
-$allowedFormats     = ['movie', 'portrait'];
+$allowedFormats     = ['movie', 'portrait', 'landscape', 'portrait_32', 'square'];
 
 if (!$prompt && empty($_FILES['image'])) {
     json_response(['ok' => false, 'error' => 'Furnizează un prompt sau o imagine.'], 400);
@@ -114,7 +114,14 @@ $endpoint = $hasImage
 $payload = [
     'prompt'       => $prompt,
     'duration'     => $duration,
-    'aspect_ratio' => ($format === 'movie') ? '16:9' : '9:16',
+    'aspect_ratio' => match($format) {
+        'movie'       => '16:9',
+        'portrait'    => '9:16',
+        'landscape'   => '3:2',
+        'portrait_32' => '2:3',
+        'square'      => '1:1',
+        default       => '16:9',
+    },
 ];
 
 if ($hasImage) {
