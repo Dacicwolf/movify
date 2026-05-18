@@ -52,6 +52,29 @@ define('MAX_UPLOAD_SIZE', 50 * 1024 * 1024); // 50 MB
 define('FAL_AI_API_KEY', getenv('FAL_AI_API_KEY') ?: '');
 define('FAL_AI_BASE_URL', 'https://queue.fal.run');
 
+// ── AI Model Configuration ──────────────────────────────────────────
+// Each model: api_endpoint (Fal.ai queue URL), base_credit_cost (per second)
+$MODELS_CONFIG = [
+    'wan_fast' => [
+        'name'             => 'Wan 2.6 Fast',
+        'api_endpoint'     => 'https://queue.fal.run/fal-ai/wan/v2.1/text-to-video',
+        'api_endpoint_i2v' => 'https://queue.fal.run/fal-ai/wan/v2.1/image-to-video',
+        'base_credit_cost' => 5,
+    ],
+    'ltx_video' => [
+        'name'             => 'LTX Video 2.0',
+        'api_endpoint'     => 'https://queue.fal.run/fal-ai/ltx-video',
+        'api_endpoint_i2v' => 'https://queue.fal.run/fal-ai/ltx-video',
+        'base_credit_cost' => 4,
+    ],
+    'kling_turbo' => [
+        'name'             => 'Kling 2.6 Turbo',
+        'api_endpoint'     => 'https://queue.fal.run/fal-ai/kling/v1/standard/text-to-video',
+        'api_endpoint_i2v' => 'https://queue.fal.run/fal-ai/kling/v1/standard/image-to-video',
+        'base_credit_cost' => 8,
+    ],
+];
+
 // ── SMTP (for PHPMailer) ────────────────────────────────────────────
 define('SMTP_HOST', getenv('SMTP_HOST') ?: 'smtp.gmail.com');
 define('SMTP_PORT', getenv('SMTP_PORT') ?: 587);

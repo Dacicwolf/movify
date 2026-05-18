@@ -30,7 +30,7 @@ $resolution = post('resolution');
 $duration   = (int)post('duration');
 $format     = post('format');
 
-$allowedModels      = ['runway', 'luma', 'stable_video'];
+$allowedModels      = array_keys($MODELS_CONFIG);
 $allowedResolutions = ['720p', '1080p', '4k'];
 $allowedDurations   = [4, 6, 8, 10];
 $allowedFormats     = ['movie', 'portrait'];
@@ -51,8 +51,14 @@ if (!in_array($format, $allowedFormats, true)) {
     json_response(['ok' => false, 'error' => 'Format invalid.'], 400);
 }
 
-// ── Credit check ────────────────────────────────────────────────────
-$cost = calculate_credits($model, $resolution, $duration);
+// ── Resolve model config ────────────────────────────────────────────
+$modelConfig = get_model_config($model);
+if (!$modelConfig) {
+    json_response(['ok' => false, 'error' => 'Configurație model lipsă.'], 400);
+}
+
+// ── Credit check (base_cost_per_second × duration) ──────────────────
+$cost = calculate_credits($model, $duration);
 
 if (!can_afford($pdo, $userId, $cost)) {
     json_response(['ok' => false, 'error' => 'Credite insuficiente. Cost: ' . $cost], 400);
@@ -98,14 +104,11 @@ if (!deduct_credits($pdo, $userId, $cost)) {
     json_response(['ok' => false, 'error' => 'Credite insuficiente (concurrency).'], 400);
 }
 
-// ── Map model to Fal.ai endpoint ────────────────────────────────────
-$modelEndpoints = [
-    'luma'         => 'fal-ai/luma-dream-machine',
-    'runway'       => 'fal-ai/runway-gen3/turbo/image-to-video',
-    'stable_video' => 'fal-ai/stable-video',
-];
-
-$endpoint = FAL_AI_BASE_URL . '/' . ($modelEndpoints[$model] ?? $modelEndpoints['luma']);
+// ── Resolve Fal.ai endpoint (text-to-video or image-to-video) ───────
+$hasImage = !empty($imageUrl);
+$endpoint = $hasImage
+    ? ($modelConfig['api_endpoint_i2v'] ?? $modelConfig['api_endpoint'])
+    : $modelConfig['api_endpoint'];
 
 // ── Build API payload ───────────────────────────────────────────────
 $payload = [
@@ -114,7 +117,7 @@ $payload = [
     'aspect_ratio' => ($format === 'movie') ? '16:9' : '9:16',
 ];
 
-if ($imageUrl) {
+if ($hasImage) {
     $payload['image_url'] = $imageUrl;
 }
 

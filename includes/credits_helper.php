@@ -2,53 +2,30 @@
 /**
  * Movify – Credit Calculation & Management
  *
- * Formula: Cost = ModelBase × ResolutionMultiplier × DurationMultiplier  (rounded up)
+ * Formula: Cost = base_credit_cost (per second) × duration (seconds)
+ * The base_credit_cost comes from $MODELS_CONFIG in config.php.
  */
 
 require_once __DIR__ . '/../config.php';
 
-// ── Base credits per model ──────────────────────────────────────────
+// ── Get base cost per second from model config ──────────────────────
 function model_base_cost(string $model): int
 {
-    $costs = [
-        'runway'       => 5,
-        'luma'         => 4,
-        'stable_video' => 3,
-    ];
-    return $costs[strtolower($model)] ?? 4;
+    global $MODELS_CONFIG;
+    return $MODELS_CONFIG[$model]['base_credit_cost'] ?? 5;
 }
 
-// ── Resolution multiplier ───────────────────────────────────────────
-function resolution_multiplier(string $resolution): float
+// ── Calculate total cost: base_cost_per_second × duration ───────────
+function calculate_credits(string $model, int $duration): int
 {
-    $map = [
-        '720p'  => 1.0,
-        '1080p' => 1.5,
-        '4k'    => 2.0,
-    ];
-    return $map[strtolower($resolution)] ?? 1.0;
+    return model_base_cost($model) * $duration;
 }
 
-// ── Duration multiplier ─────────────────────────────────────────────
-function duration_multiplier(int $seconds): float
+// ── Get model config (endpoint, name, cost) ─────────────────────────
+function get_model_config(string $model): ?array
 {
-    $map = [
-        4  => 1.0,
-        6  => 1.3,
-        8  => 1.6,
-        10 => 2.0,
-    ];
-    return $map[$seconds] ?? 1.0;
-}
-
-// ── Calculate total cost (rounded up) ───────────────────────────────
-function calculate_credits(string $model, string $resolution, int $duration): int
-{
-    $cost = model_base_cost($model)
-          * resolution_multiplier($resolution)
-          * duration_multiplier($duration);
-
-    return (int)ceil($cost);
+    global $MODELS_CONFIG;
+    return $MODELS_CONFIG[$model] ?? null;
 }
 
 // ── Check if user can afford ────────────────────────────────────────

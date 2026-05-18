@@ -14,21 +14,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (!form) return; // not on dashboard
 
-    // ── Credit Calculation (mirrors PHP logic) ──────────────────────
-    const MODEL_BASE    = { runway: 5, luma: 4, stable_video: 3 };
-    const RES_MULT      = { '720p': 1.0, '1080p': 1.5, '4k': 2.0 };
-    const DUR_MULT      = { 4: 1.0, 6: 1.3, 8: 1.6, 10: 2.0 };
+    // ── Credit Calculation (mirrors PHP: base_cost_per_second × duration) ──
+    // Read data-cost from <option> so adding new models requires no JS change
+    const MODEL_BASE = { wan_fast: 5, ltx_video: 4, kling_turbo: 8 };
 
     function calcCost() {
-        const model      = form.querySelector('#model').value;
-        const resolution = form.querySelector('#resolution').value;
+        const modelSel   = form.querySelector('#model');
+        const model      = modelSel.value;
         const duration   = parseInt(form.querySelector('input[name="duration"]:checked')?.value || 4);
 
-        const cost = Math.ceil(
-            (MODEL_BASE[model] || 4)
-            * (RES_MULT[resolution] || 1)
-            * (DUR_MULT[duration] || 1)
-        );
+        // Prefer data-cost attribute, fall back to lookup table
+        const selectedOpt = modelSel.options[modelSel.selectedIndex];
+        const baseCost    = parseInt(selectedOpt?.dataset.cost) || MODEL_BASE[model] || 5;
+
+        const cost = baseCost * duration;
 
         if (costPreview) costPreview.textContent = cost;
         return cost;

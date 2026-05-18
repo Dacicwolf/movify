@@ -43,15 +43,10 @@ if ($video['status'] !== 'processing') {
     ]);
 }
 
-// ── Map model to Fal.ai status endpoint ─────────────────────────────
-$modelEndpoints = [
-    'luma'         => 'fal-ai/luma-dream-machine',
-    'runway'       => 'fal-ai/runway-gen3/turbo/image-to-video',
-    'stable_video' => 'fal-ai/stable-video',
-];
-
-$modelPath = $modelEndpoints[$video['model_used']] ?? $modelEndpoints['luma'];
-$statusUrl = "https://queue.fal.run/{$modelPath}/requests/{$video['queue_id']}/status";
+// ── Resolve Fal.ai status endpoint from model config ────────────────
+$modelConfig = get_model_config($video['model_used']);
+$apiEndpoint = $modelConfig['api_endpoint'] ?? 'https://queue.fal.run/fal-ai/wan/v2.1/text-to-video';
+$statusUrl   = $apiEndpoint . '/requests/' . $video['queue_id'] . '/status';
 
 // ── Poll Fal.ai ─────────────────────────────────────────────────────
 $ch = curl_init();

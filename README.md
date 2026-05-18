@@ -1,6 +1,6 @@
 # Movify – AI Video Generator
 
-Multi-user web application for generating videos from text prompts and images using AI models (Luma Dream Machine, Runway Gen-3, Stable Video).
+Multi-user web application for generating videos from text prompts and images using AI models (Wan 2.6 Fast, LTX Video 2.0, Kling 2.6 Turbo) via Fal.ai.
 
 ## Tech Stack
 
@@ -57,17 +57,15 @@ Upload all files to your LiteSpeed web server document root. Ensure:
 
 ## Credit System
 
-| Model | Base Cost |
-|---|---|
-| Runway Gen-3 | 5 credits |
-| Luma Dream Machine | 4 credits |
-| Stable Video | 3 credits |
+| Model | Key | Cost per second |
+|---|---|---|
+| Wan 2.6 Fast (Eco) | `wan_fast` | 5 credits/s |
+| LTX Video 2.0 (Ultra-Rapid) | `ltx_video` | 4 credits/s |
+| Kling 2.6 Turbo (Pro) | `kling_turbo` | 8 credits/s |
 
-**Multipliers:**
-- Resolution: 720p (×1), 1080p (×1.5), 4K (×2)
-- Duration: 4s (×1), 6s (×1.3), 8s (×1.6), 10s (×2)
+**Formula:** `Cost = base_credit_cost × duration (seconds)`
 
-**Formula:** `Cost = Base × Resolution × Duration` (rounded up)
+**Example:** Kling Turbo (8 cr/s) × 10s = **80 credits**
 
 ## File Structure
 

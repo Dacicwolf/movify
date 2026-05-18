@@ -73,12 +73,12 @@ require_once __DIR__ . '/includes/header.php';
 
                     <!-- Model -->
                     <div>
-                        <label for="model" class="block text-sm font-medium text-gray-300 mb-1">Model AI</label>
+                        <label for="model" class="block text-sm font-medium text-gray-300 mb-1">Alege Modelul AI</label>
                         <select id="model" name="model"
                                 class="w-full px-4 py-3 rounded-lg bg-dark-900 border border-gray-600 focus:border-primary-500 outline-none text-white">
-                            <option value="luma">Luma Dream Machine (4 credite)</option>
-                            <option value="runway">Runway Gen-3 (5 credite)</option>
-                            <option value="stable_video">Stable Video (3 credite)</option>
+                            <option value="wan_fast" data-cost="5">Wan 2.6 Fast (Eco - Mișcări Fluide) – 5 cr/s</option>
+                            <option value="ltx_video" data-cost="4">LTX Video 2.0 (Ultra-Rapid) – 4 cr/s</option>
+                            <option value="kling_turbo" data-cost="8">Kling 2.6 Turbo (Pro - Realism Uman) – 8 cr/s</option>
                         </select>
                     </div>
 
