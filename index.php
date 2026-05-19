@@ -34,11 +34,11 @@ require_once __DIR__ . '/includes/header.php';
 
         <!-- CTA buttons -->
         <div class="flex flex-col sm:flex-row gap-4 justify-center">
-            <a href="login.php"
+            <a href="<?= url('login.php') ?>"
                class="px-8 py-3 rounded-xl bg-primary-600 hover:bg-primary-700 text-white font-semibold transition">
                 Autentificare
             </a>
-            <a href="register.php"
+            <a href="<?= url('register.php') ?>"
                class="px-8 py-3 rounded-xl border border-gray-600 hover:border-primary-500 text-gray-300 hover:text-white font-semibold transition">
                 Creează cont
             </a>

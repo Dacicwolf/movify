@@ -5,6 +5,9 @@
 # ── Rewrite Engine ───────────────────────────────────────────────────
 RewriteEngine On
 
+# Subdirectory base – change to / if deployed at domain root
+RewriteBase /movify/
+
 # Force HTTPS (uncomment in production)
 # RewriteCond %{HTTPS} off
 # RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]

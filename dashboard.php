@@ -29,7 +29,7 @@ require_once __DIR__ . '/includes/header.php';
 <!-- Top Bar -->
 <nav class="bg-dark-800 border-b border-gray-700 sticky top-0 z-50">
     <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
-        <a href="dashboard.php" class="text-xl font-bold bg-gradient-to-r from-primary-400 to-purple-400 bg-clip-text text-transparent">
+        <a href="<?= url('dashboard.php') ?>" class="text-xl font-bold bg-gradient-to-r from-primary-400 to-purple-400 bg-clip-text text-transparent">
             Movify
         </a>
         <div class="flex items-center gap-4">
@@ -41,7 +41,7 @@ require_once __DIR__ . '/includes/header.php';
                 <span class="text-gray-400 text-sm">credite</span>
             </div>
             <span class="text-gray-400 text-sm hidden sm:inline"><?= h($user['email']) ?></span>
-            <a href="logout.php" class="text-gray-400 hover:text-red-400 transition text-sm">Ieșire</a>
+            <a href="<?= url('logout.php') ?>" class="text-gray-400 hover:text-red-400 transition text-sm">Ieșire</a>
         </div>
     </div>
 </nav>

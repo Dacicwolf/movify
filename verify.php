@@ -70,7 +70,7 @@ require_once __DIR__ . '/includes/header.php';
 
         <p class="text-center text-gray-400 text-sm mt-6">
             Nu ai primit codul?
-            <a href="register.php" class="text-primary-400 hover:underline">Reînregistrează-te</a>
+            <a href="<?= url('register.php') ?>" class="text-primary-400 hover:underline">Reînregistrează-te</a>
         </p>
     </div>
 </div>
