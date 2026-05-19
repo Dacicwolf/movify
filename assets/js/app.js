@@ -59,6 +59,21 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         fpsSection.classList.remove('hidden');
+        updateFpsDurationHint();
+    }
+
+    // ── FPS duration hint ────────────────────────────────────────────
+    const fpsDurationHint = document.getElementById('fps-duration-hint');
+    const NUM_FRAMES = 81; // Wan default frame count
+
+    function updateFpsDurationHint() {
+        if (!fpsDurationHint || !fpsSelect || !fpsSection || fpsSection.classList.contains('hidden')) {
+            if (fpsDurationHint) fpsDurationHint.textContent = '';
+            return;
+        }
+        const fps = parseInt(fpsSelect.value) || 16;
+        const realDuration = (NUM_FRAMES / fps).toFixed(1);
+        fpsDurationHint.textContent = `Durată reală estimată: ~${realDuration}s (${NUM_FRAMES} cadre la ${fps} FPS)`;
     }
 
     // Recalculate on every control change
@@ -68,6 +83,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     form.querySelector('#model')?.addEventListener('change', updateFpsSection);
+    fpsSelect?.addEventListener('change', updateFpsDurationHint);
 
     form.querySelectorAll('input[name="duration"]').forEach(r => {
         r.addEventListener('change', calcCost);

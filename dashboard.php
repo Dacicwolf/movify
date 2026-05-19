@@ -140,6 +140,7 @@ require_once __DIR__ . '/includes/header.php';
                             <option value="20">20 FPS</option>
                             <option value="24">24 FPS</option>
                         </select>
+                        <p id="fps-duration-hint" class="mt-1 text-xs text-gray-500"></p>
                     </div>
 
                     <!-- Cost preview -->
