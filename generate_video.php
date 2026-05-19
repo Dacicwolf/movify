@@ -116,9 +116,13 @@ $endpoint = $hasImage
     : $modelConfig['api_endpoint'];
 
 // ── Build API payload ───────────────────────────────────────────────
+$durationParam = $modelConfig['duration_param'] ?? 'duration';
+$durationMap   = $modelConfig['duration_map'] ?? [];
+$durationValue = $durationMap[$duration] ?? $duration;
+
 $payload = [
     'prompt'       => $prompt,
-    'duration'     => $duration,
+    $durationParam => $durationValue,
     'aspect_ratio' => match($format) {
         'movie'       => '16:9',
         'portrait'    => '9:16',
