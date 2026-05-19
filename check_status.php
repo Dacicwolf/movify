@@ -25,7 +25,7 @@ if (!$videoId) {
 
 // ── Fetch video record ──────────────────────────────────────────────
 $stmt = $pdo->prepare(
-    'SELECT id, queue_id, status, video_url, model_used, credits_deducted, status_url, response_url FROM videos WHERE id = ? AND user_id = ?'
+    'SELECT id, queue_id, status, video_url, model_used, credits_deducted, status_url, response_url, api_endpoint FROM videos WHERE id = ? AND user_id = ?'
 );
 $stmt->execute([$videoId, $userId]);
 $video = $stmt->fetch();
@@ -81,10 +81,13 @@ $status = strtolower($data['status'] ?? 'IN_QUEUE');
 
 // ── Handle completed ────────────────────────────────────────────────
 if ($status === 'completed' || $status === 'succeeded') {
-    // Status endpoint may not contain the result — fetch from response_url
-    $resultData = $data;
-    $fetchUrl   = $video['response_url'] ?? '';
+    // Fetch the result from the API endpoint (per Fal.ai docs: GET {endpoint}/requests/{id})
+    $resultEndpoint = $video['api_endpoint'] ?? '';
+    $fetchUrl       = $resultEndpoint
+        ? $resultEndpoint . '/requests/' . $video['queue_id']
+        : ($video['response_url'] ?? '');
 
+    $resultData = [];
     if ($fetchUrl) {
         $ch2 = curl_init();
         curl_setopt_array($ch2, [
@@ -101,7 +104,7 @@ if ($status === 'completed' || $status === 'succeeded') {
         curl_close($ch2);
 
         if ($resultCode === 200 && $resultResponse) {
-            $resultData = json_decode($resultResponse, true) ?: $data;
+            $resultData = json_decode($resultResponse, true) ?: [];
         }
     }
 
@@ -121,6 +124,19 @@ if ($status === 'completed' || $status === 'succeeded') {
             'credits'   => get_credits($pdo, $userId),
         ]);
     }
+
+    // COMPLETED but no video URL — treat as failure
+    error_log("Fal.ai COMPLETED but no video URL for video {$videoId}. Result: " . json_encode($resultData));
+    $pdo->prepare('UPDATE videos SET status = ? WHERE id = ?')
+        ->execute(['failed', $videoId]);
+    refund_credits($pdo, $userId, (int)$video['credits_deducted']);
+
+    json_response([
+        'ok'      => true,
+        'status'  => 'failed',
+        'error'   => $resultData['detail'] ?? 'Generarea a eșuat (fără URL video). Creditele au fost returnate.',
+        'credits' => get_credits($pdo, $userId),
+    ]);
 }
 
 // ── Handle failed ───────────────────────────────────────────────────

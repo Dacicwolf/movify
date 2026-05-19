@@ -29,6 +29,7 @@ $model      = post('model');
 $resolution = post('resolution');
 $duration   = (int)post('duration');
 $format     = post('format');
+$fps        = (int)post('fps');
 
 $allowedModels      = array_keys($MODELS_CONFIG);
 $allowedResolutions = ['720p', '1080p', '4k'];
@@ -96,7 +97,11 @@ if (!empty($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
         json_response(['ok' => false, 'error' => 'Eroare la salvarea imaginii.'], 500);
     }
 
-    $imageUrl = APP_URL . '/uploads/' . $filename;
+    // Upload to Fal.ai CDN so the model can access it
+    $imageUrl = upload_to_fal_cdn($imagePath, $mime);
+    if (!$imageUrl) {
+        json_response(['ok' => false, 'error' => 'Eroare la uploadul imaginii pe CDN.'], 500);
+    }
 }
 
 // ── Deduct credits ──────────────────────────────────────────────────
@@ -126,6 +131,12 @@ $payload = [
 
 if ($hasImage) {
     $payload['image_url'] = $imageUrl;
+}
+
+// Add FPS if model supports it and value was provided
+$fpsOptions = $modelConfig['fps_options'] ?? [];
+if ($fps && !empty($fpsOptions)) {
+    $payload['frames_per_second'] = in_array($fps, $fpsOptions) ? $fps : ($modelConfig['fps_default'] ?? 16);
 }
 
 // ── Submit to Fal.ai queue ──────────────────────────────────────────
@@ -165,8 +176,8 @@ if (!$queueId) {
 
 // ── Save video record (status = processing) ─────────────────────────
 $stmt = $pdo->prepare(
-    'INSERT INTO videos (user_id, prompt, image_path, model_used, resolution, duration, format, video_url, credits_deducted, status, queue_id, status_url, response_url)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+    'INSERT INTO videos (user_id, prompt, image_path, model_used, resolution, duration, format, video_url, credits_deducted, status, queue_id, status_url, response_url, api_endpoint)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
 );
 $stmt->execute([
     $userId,
@@ -182,6 +193,7 @@ $stmt->execute([
     $queueId,
     $statusUrl,
     $responseUrl,
+    $endpoint,
 ]);
 
 $videoId = (int)$pdo->lastInsertId();

@@ -76,9 +76,9 @@ require_once __DIR__ . '/includes/header.php';
                         <label for="model" class="block text-sm font-medium text-gray-300 mb-1">Alege Modelul AI</label>
                         <select id="model" name="model"
                                 class="w-full px-4 py-3 rounded-lg bg-dark-900 border border-gray-600 focus:border-primary-500 outline-none text-white">
-                            <option value="wan_fast" data-cost="5">Wan 2.6 Fast (Eco - Mișcări Fluide) – 5 cr/s</option>
-                            <option value="ltx_video" data-cost="4">LTX Video 2.0 (Ultra-Rapid) – 4 cr/s</option>
-                            <option value="kling_turbo" data-cost="8">Kling 2.6 Turbo (Pro - Realism Uman) – 8 cr/s</option>
+                            <option value="wan_fast" data-cost="5" data-fps="8,12,16,20,24" data-fps-default="16">Wan 2.1 Fast (Eco - Mișcări Fluide) – 5 cr/s</option>
+                            <option value="ltx_video" data-cost="4" data-fps="" data-fps-default="">LTX Video (Ultra-Rapid) – 4 cr/s</option>
+                            <option value="kling_turbo" data-cost="8" data-fps="" data-fps-default="">Kling 1.6 Standard (Pro - Realism Uman) – 8 cr/s</option>
                         </select>
                     </div>
 
@@ -127,6 +127,20 @@ require_once __DIR__ . '/includes/header.php';
                                 <div class="text-center py-2 rounded-lg border border-gray-600 peer-checked:border-primary-500 peer-checked:bg-primary-600/20 text-sm transition">10s</div>
                             </label>
                         </div>
+                    </div>
+
+                    <!-- Frame Rate (shown only for models that support it) -->
+                    <div id="fps-section" class="">
+                        <label for="fps" class="block text-sm font-medium text-gray-300 mb-1">Frame Rate (FPS)</label>
+                        <select id="fps" name="fps"
+                                class="w-full px-4 py-3 rounded-lg bg-dark-900 border border-gray-600 focus:border-primary-500 outline-none text-white">
+                            <option value="8">8 FPS</option>
+                            <option value="12">12 FPS</option>
+                            <option value="16" selected>16 FPS (implicit)</option>
+                            <option value="20">20 FPS</option>
+                            <option value="24">24 FPS</option>
+                        </select>
+                        <p id="fps-duration-hint" class="mt-1 text-xs text-gray-500"></p>
                     </div>
 
                     <!-- Cost preview -->

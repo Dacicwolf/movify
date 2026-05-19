@@ -50,6 +50,7 @@ CREATE TABLE IF NOT EXISTS videos (
     queue_id VARCHAR(255) NULL,
     status_url VARCHAR(512) NULL,
     response_url VARCHAR(512) NULL,
+    api_endpoint VARCHAR(512) NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     INDEX idx_user (user_id),
