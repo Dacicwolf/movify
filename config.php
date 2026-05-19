@@ -56,22 +56,28 @@ define('FAL_AI_BASE_URL', 'https://queue.fal.run');
 // Each model: api_endpoint (Fal.ai queue URL), base_credit_cost (per second)
 $MODELS_CONFIG = [
     'wan_fast' => [
-        'name'             => 'Wan 2.6 Fast',
-        'api_endpoint'     => 'https://queue.fal.run/fal-ai/wan/v2.1/text-to-video',
-        'api_endpoint_i2v' => 'https://queue.fal.run/fal-ai/wan/v2.1/image-to-video',
+        'name'             => 'Wan 2.1 Fast',
+        'api_endpoint'     => 'https://queue.fal.run/fal-ai/wan-t2v',
+        'api_endpoint_i2v' => 'https://queue.fal.run/fal-ai/wan-i2v',
         'base_credit_cost' => 5,
+        'fps_options'      => [8, 12, 16, 20, 24],
+        'fps_default'      => 16,
     ],
     'ltx_video' => [
-        'name'             => 'LTX Video 2.0',
+        'name'             => 'LTX Video',
         'api_endpoint'     => 'https://queue.fal.run/fal-ai/ltx-video',
         'api_endpoint_i2v' => 'https://queue.fal.run/fal-ai/ltx-video',
         'base_credit_cost' => 4,
+        'fps_options'      => [],
+        'fps_default'      => null,
     ],
     'kling_turbo' => [
-        'name'             => 'Kling 2.6 Turbo',
-        'api_endpoint'     => 'https://queue.fal.run/fal-ai/kling/v1/standard/text-to-video',
-        'api_endpoint_i2v' => 'https://queue.fal.run/fal-ai/kling/v1/standard/image-to-video',
+        'name'             => 'Kling 1.6 Standard',
+        'api_endpoint'     => 'https://queue.fal.run/fal-ai/kling-video/v1.6/standard/text-to-video',
+        'api_endpoint_i2v' => 'https://queue.fal.run/fal-ai/kling-video/v1.6/standard/image-to-video',
         'base_credit_cost' => 8,
+        'fps_options'      => [],
+        'fps_default'      => null,
     ],
 ];
 

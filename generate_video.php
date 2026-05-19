@@ -29,6 +29,7 @@ $model      = post('model');
 $resolution = post('resolution');
 $duration   = (int)post('duration');
 $format     = post('format');
+$fps        = (int)post('fps');
 
 $allowedModels      = array_keys($MODELS_CONFIG);
 $allowedResolutions = ['720p', '1080p', '4k'];
@@ -130,6 +131,12 @@ $payload = [
 
 if ($hasImage) {
     $payload['image_url'] = $imageUrl;
+}
+
+// Add FPS if model supports it and value was provided
+$fpsOptions = $modelConfig['fps_options'] ?? [];
+if ($fps && !empty($fpsOptions)) {
+    $payload['frames_per_second'] = in_array($fps, $fpsOptions) ? $fps : ($modelConfig['fps_default'] ?? 16);
 }
 
 // ── Submit to Fal.ai queue ──────────────────────────────────────────
