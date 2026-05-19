@@ -1,11 +1,11 @@
 -- Movify AI Video Generator – Database Schema
 -- Database: ai_video_generator
 
-CREATE DATABASE IF NOT EXISTS ai_video_generator
+CREATE DATABASE IF NOT EXISTS ai_video
   CHARACTER SET utf8mb4
   COLLATE utf8mb4_unicode_ci;
 
-USE ai_video_generator;
+USE ai_video;
 
 -- -------------------------------------------------------
 -- Users
