@@ -62,6 +62,8 @@ $MODELS_CONFIG = [
         'base_credit_cost' => 5,
         'fps_options'      => [8, 12, 16, 20, 24],
         'fps_default'      => 16,
+        'duration_param'   => 'num_frames',
+        'duration_map'     => [4 => 81, 6 => 81, 8 => 81, 10 => 100],
     ],
     'ltx_video' => [
         'name'             => 'LTX Video',
@@ -70,6 +72,8 @@ $MODELS_CONFIG = [
         'base_credit_cost' => 4,
         'fps_options'      => [],
         'fps_default'      => null,
+        'duration_param'   => 'num_frames',
+        'duration_map'     => [4 => 81, 6 => 121, 8 => 161, 10 => 201],
     ],
     'kling_turbo' => [
         'name'             => 'Kling 1.6 Standard',
@@ -78,6 +82,8 @@ $MODELS_CONFIG = [
         'base_credit_cost' => 8,
         'fps_options'      => [],
         'fps_default'      => null,
+        'duration_param'   => 'duration',
+        'duration_map'     => [4 => '5', 6 => '5', 8 => '10', 10 => '10'],
     ],
 ];
 

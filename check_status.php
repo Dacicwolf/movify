@@ -81,11 +81,14 @@ $status = strtolower($data['status'] ?? 'IN_QUEUE');
 
 // ── Handle completed ────────────────────────────────────────────────
 if ($status === 'completed' || $status === 'succeeded') {
-    // Fetch the result from the API endpoint (per Fal.ai docs: GET {endpoint}/requests/{id})
-    $resultEndpoint = $video['api_endpoint'] ?? '';
-    $fetchUrl       = $resultEndpoint
-        ? $resultEndpoint . '/requests/' . $video['queue_id']
-        : ($video['response_url'] ?? '');
+    // Fetch the result — prefer response_url from Fal.ai (correct for all models)
+    $fetchUrl = $video['response_url'] ?? '';
+    if (!$fetchUrl) {
+        $resultEndpoint = $video['api_endpoint'] ?? '';
+        $fetchUrl = $resultEndpoint
+            ? $resultEndpoint . '/requests/' . $video['queue_id']
+            : '';
+    }
 
     $resultData = [];
     if ($fetchUrl) {
