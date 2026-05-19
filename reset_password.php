@@ -59,7 +59,7 @@ require_once __DIR__ . '/includes/header.php';
         </form>
 
         <p class="text-center text-gray-400 text-sm mt-6">
-            <a href="login.php" class="text-primary-400 hover:underline">Înapoi la autentificare</a>
+            <a href="<?= url('login.php') ?>" class="text-primary-400 hover:underline">Înapoi la autentificare</a>
         </p>
     </div>
 </div>

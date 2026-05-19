@@ -105,7 +105,7 @@ document.addEventListener('DOMContentLoaded', () => {
         processingTx.textContent = 'Se trimite cererea...';
 
         try {
-            const res  = await fetch('generate_video.php', { method: 'POST', body: fd });
+            const res  = await fetch(BASE_PATH + '/generate_video.php', { method: 'POST', body: fd });
             const data = await res.json();
 
             if (!data.ok) {
@@ -146,7 +146,7 @@ document.addEventListener('DOMContentLoaded', () => {
             progressBar.style.width = fakeProgress + '%';
 
             try {
-                const res  = await fetch(`check_status.php?video_id=${videoId}`);
+                const res  = await fetch(`${BASE_PATH}/check_status.php?video_id=${videoId}`);
                 const data = await res.json();
 
                 if (data.status === 'completed') {

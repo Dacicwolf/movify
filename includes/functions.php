@@ -16,8 +16,17 @@ function json_response(array $data, int $status = 200): void
     exit;
 }
 
+function url(string $path): string
+{
+    $path = ltrim($path, '/');
+    return BASE_PATH . '/' . $path;
+}
+
 function redirect(string $url): void
 {
+    if (!preg_match('#^https?://#i', $url)) {
+        $url = url($url);
+    }
     header('Location: ' . $url);
     exit;
 }

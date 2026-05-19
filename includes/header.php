@@ -7,7 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="<?= url('assets/css/style.css') ?>">
     <script>
         tailwind.config = {
             theme: {
@@ -21,5 +21,6 @@
             }
         }
     </script>
+    <script>const BASE_PATH = <?= json_encode(BASE_PATH) ?>;</script>
 </head>
 <body class="min-h-full bg-dark-900 text-gray-100 font-sans antialiased">

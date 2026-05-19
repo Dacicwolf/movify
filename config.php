@@ -48,6 +48,11 @@ define('APP_URL', getenv('APP_URL') ?: 'http://localhost');
 define('UPLOAD_DIR', __DIR__ . '/uploads/');
 define('MAX_UPLOAD_SIZE', 50 * 1024 * 1024); // 50 MB
 
+// ── Subdirectory Support ────────────────────────────────────────────
+// Set to '/movify' (no trailing slash) when deployed in a subdirectory.
+// Set to '' (empty string) when deployed at the domain root.
+define('BASE_PATH', getenv('BASE_PATH') !== false ? rtrim(getenv('BASE_PATH'), '/') : '/movify');
+
 // ── AI API ──────────────────────────────────────────────────────────
 define('FAL_AI_API_KEY', getenv('FAL_AI_API_KEY') ?: '');
 define('FAL_AI_BASE_URL', 'https://queue.fal.run');

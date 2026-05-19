@@ -9,7 +9,7 @@ require_once __DIR__ . '/../config.php';
 function require_login(): void
 {
     if (empty($_SESSION['user_id'])) {
-        header('Location: login.php');
+        header('Location: ' . url('login.php'));
         exit;
     }
 }
@@ -129,7 +129,7 @@ function create_password_reset(PDO $pdo, string $email): bool
         'INSERT INTO password_resets (email, token, expires_at) VALUES (?, ?, ?)'
     )->execute([$email, $token, $expires]);
 
-    $link = APP_URL . '/reset_password.php?token=' . $token;
+    $link = rtrim(APP_URL, '/') . url('reset_password.php') . '?token=' . $token;
     send_reset_email($email, $link);
 
     return true;

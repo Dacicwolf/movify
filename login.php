@@ -75,8 +75,8 @@ require_once __DIR__ . '/includes/header.php';
         </form>
 
         <div class="flex justify-between text-sm mt-6 text-gray-400">
-            <a href="forgot_password.php" class="hover:text-primary-400 transition">Am uitat parola</a>
-            <a href="register.php" class="hover:text-primary-400 transition">Creează cont</a>
+            <a href="<?= url('forgot_password.php') ?>" class="hover:text-primary-400 transition">Am uitat parola</a>
+            <a href="<?= url('register.php') ?>" class="hover:text-primary-400 transition">Creează cont</a>
         </div>
     </div>
 </div>
